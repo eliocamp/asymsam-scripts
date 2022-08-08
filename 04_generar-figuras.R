@@ -48,7 +48,7 @@ escala_signo <- scale_fill_manual(NULL,
                                              "FALSE" = azul),
                                   guide = "none")
 
-files <- rev(sort(list.files(here::here("sam"), full.names = TRUE)))
+files <- rev(sort(list.files(here::here("../data/sam"), full.names = TRUE)))
 # Grafico los últimos 2 meses
 n <- 12
 files <- files[seq_len(n)]
@@ -69,7 +69,7 @@ ggsave(gl$plots$sam_latest12, g, units = "px", height = 400*3, width = 700*3,
 
 
 # Grafico los últimos 6 meses
-files <- rev(sort(list.files(here::here("sam"), full.names = TRUE)))
+files <- rev(sort(list.files(here::here("../data/sam"), full.names = TRUE)))
 n <- 6
 files <- files[seq_len(n)]
 
@@ -89,7 +89,7 @@ ggsave(gl$plots$sam_latest6, g, units = "px", height = 400*3, width = 700*3,
 
 
 # Grafico los últimos 3 meses
-files <- rev(sort(list.files(here::here("sam"), full.names = TRUE)))
+files <- rev(sort(list.files(here::here("../data/sam"), full.names = TRUE)))
 n <- 3
 files <- files[seq_len(n)]
 

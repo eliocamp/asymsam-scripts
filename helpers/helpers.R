@@ -1,6 +1,6 @@
 library(magrittr)
 
-source(here::here("scripts/helpers/globals.R"))
+source(here::here("helpers/globals.R"))
 
 clim <- data.table::fread(gl$climatologia_file)
 norm <- data.table::fread(gl$sam_norm_file)
@@ -9,7 +9,7 @@ campos <- data.table::fread(gl$sam_file) %>%
 
 
 make_sam_file <- function(date) {
-  file.path(here::here("datos/sam"),
+  file.path(here::here("../data/sam"),
             paste0(format(date, "%Y-%m-%d"), "_sam.csv"))
 }
 

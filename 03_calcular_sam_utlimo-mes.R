@@ -14,7 +14,7 @@ if (!file.exists(file_out)) {
   request$day <- seq_len(lubridate::days_in_month(last_month))
 
   message("Descargando datos...")
-  out <- ecmwfr::wf_request(request)
+  out <- ecmwfr::wf_request(request, user = Sys.getenv("CDSUSER"))
 
   message("Computando SAMs...")
   sam <- computar_sam(out)

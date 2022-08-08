@@ -19,7 +19,7 @@ request <- list(
   grid = gl$res
 )
 
-out <- ecmwfr::wf_request(request, user = "11343")
+out <- ecmwfr::wf_request(request, user = Sys.getenv("CDSUSER"))
 
 
 set.seed(4)

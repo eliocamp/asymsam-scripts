@@ -358,11 +358,12 @@
     },
     "ecmwfr": {
       "Package": "ecmwfr",
-      "Version": "1.3.0",
+      "Version": "1.4.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "ef6614f0bdcca03f6e44f762fc8060c8",
+      "Repository": "RSPM",
+      "Hash": "f5d57580bcc38702ee5353a7f18a5a62",
       "Requirements": [
+        "R6",
         "curl",
         "getPass",
         "httr",

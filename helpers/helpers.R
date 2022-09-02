@@ -41,22 +41,35 @@ strip_year <- function(time) {
 }
 
 
-computar_sam <- function(file) {
+computar_sam <- function(file, normalizar = TRUE) {
   hgt <- metR::ReadNetCDF(file, vars = c(hgt = "z")) %>%
     normalise_coords() %>%
     .[, time2 := strip_year(time[1]), by = time]
 
 
-  clim[hgt, on = c("lon", "lat", "lev", "time2")] %>%
+  sam <- clim[hgt, on = c("lon", "lat", "lev", "time2")] %>%
     .[, anom := hgt - mean] %>%
     campos[., on = c("lon", "lat", "lev"), allow.cartesian = TRUE] %>%
     .[, metR::FitLm(anom, value, weights = cos(lat*pi/180), r2 = TRUE), by = .(variable, lev, time)] %>%
     .[term != "(Intercept)"] %>%
     .[, term := NULL] %>%
-    data.table::setnames("variable", "term") %>%
-    norm[., on = c("lev", "term")] %>%
-    .[, estimate := estimate/norm] %>%
-    .[, norm := NULL] %>%
-    .[]
+    data.table::setnames("variable", "term")
+
+  if (isTRUE(normalizar)) {
+    sam <- sam %>%
+      norm[., on = c("lev", "term")] %>%
+      .[, estimate := estimate/norm] %>%
+      .[, norm := NULL]
+  }
+
+  sam[]
+}
+
+
+
+wvar <- function(x, w) {
+  w <- w/sum(w)
+  xm <- weighted.mean(x, w)
+  sum(w * (x - xm)^2)
 
 }

@@ -50,7 +50,8 @@ escala_signo <- scale_fill_manual(NULL,
                                              "FALSE" = azul),
                                   guide = "none")
 
-guide_fill <- guide_colorsteps(barwidth = 15, barheight = 0.5, frame.colour = "black")
+guide_fill <- guide_colorsteps(barwidth =30, barheight = 0.5, frame.colour = "black",
+                               even.steps = FALSE, show.limits = FALSE)
 
 
 files <- rev(sort(list.files(here::here("../data/sam"), full.names = TRUE)))
@@ -87,15 +88,22 @@ make_plots <- function(meses = 12) {
 
 
 
+  breaks <- seq(0.5, 1, length.out = 8) %>%
+    qnorm() %>%
+    round(digits = 2)
+
+  breaks <- sort(unique(c(-breaks, breaks)))
+  breaks <- breaks[breaks != 0]
+
   g <- sam %>%
     ggplot(aes(as.Date(time), lev)) +
-    geom_contour_fill(aes(z = estimate, fill = stat(level)), breaks = ZeroBreaks) +
-    geom_contour_tanaka2(aes(z = estimate), breaks = ZeroBreaks) +
-    scale_fill_divergent_discretised(NULL, guide = guide_fill) +
+    geom_contour_fill(aes(z = estimate, fill = stat(level)), breaks = breaks) +
+    geom_contour_tanaka2(aes(z = estimate), breaks = breaks) +
+    scale_fill_divergent_discretised(NULL, guide = guide_fill,
+                                     labels = scales::number_format()) +
     scale_y_level() +
     scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks) +
     facet_grid(term~.)
-
 
   file <- gl$plots[[paste0("sam_latest", meses, "_vertical")]]
   ggsave(file, g, units = "px", height = 400*3, width = 700*3,

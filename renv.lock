@@ -247,14 +247,6 @@
       "Hash": "3f038e5ac7f41d4ac41ce658c85e3042",
       "Requirements": []
     },
-    "codetools": {
-      "Package": "codetools",
-      "Version": "0.2-16",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "89cf4b8207269ccf82fbeb6473fd662b",
-      "Requirements": []
-    },
     "colorspace": {
       "Package": "colorspace",
       "Version": "2.0-3",
@@ -443,34 +435,6 @@
         "operator.tools"
       ]
     },
-    "furrr": {
-      "Package": "furrr",
-      "Version": "0.3.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c7cf394610e3aaf086fa4b66c382016e",
-      "Requirements": [
-        "future",
-        "globals",
-        "lifecycle",
-        "purrr",
-        "rlang",
-        "vctrs"
-      ]
-    },
-    "future": {
-      "Package": "future",
-      "Version": "1.26.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "cd20396d5395828de2e12d60467f6a53",
-      "Requirements": [
-        "digest",
-        "globals",
-        "listenv",
-        "parallelly"
-      ]
-    },
     "generics": {
       "Package": "generics",
       "Version": "0.1.2",
@@ -603,16 +567,6 @@
         "scales",
         "tibble",
         "withr"
-      ]
-    },
-    "globals": {
-      "Package": "globals",
-      "Version": "0.15.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "ace993e2dad5e64ed46391302b79e94f",
-      "Requirements": [
-        "codetools"
       ]
     },
     "glue": {
@@ -787,14 +741,6 @@
         "rlang"
       ]
     },
-    "listenv": {
-      "Package": "listenv",
-      "Version": "0.8.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "0bde42ee282efb18c7c4e63822f5b4f7",
-      "Requirements": []
-    },
     "lubridate": {
       "Package": "lubridate",
       "Version": "1.8.0",
@@ -939,14 +885,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "bd93354f4a2ee4e096e3d7ad33e08b72",
-      "Requirements": []
-    },
-    "parallelly": {
-      "Package": "parallelly",
-      "Version": "1.31.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "115faaa1a50897c3e2339d1cb7d3d493",
       "Requirements": []
     },
     "pillar": {

@@ -1,10 +1,12 @@
+library(magrittr)
+
 # Crea un environment llamado gl donde guardar variables globales
 # comunes a todo el sistema de monitoreo.
 gl <- list()
 
 gl$climatology <- as.Date(c("1979-01-01", "2000-12-31"))
-# gl$levels <- c(700, 50)
 gl$levels <- c(1, 2, 3, 5, 7, 10, 20, 30, 50, 70, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000)
+gl$levels <- c(700, 50)
 gl$sam_area <- c(-20, 0, -90, 360)
 gl$res <- c(2.5, 2.5)
 
@@ -24,13 +26,22 @@ gl$base_request <- list(
   target = "download.nc"
 )
 
+gl$dirs <- list(
+  era_mensual = here::here("data/era-monthly"),
+  era_historical = here::here("data/era5"),
+  indices = here::here("data/sam")
+)
+
+vapply(gl$dir, dir.create, logical(1), showWarnings = FALSE, recursive = FALSE,)
+
+gl$archivos <- list(
+  climatologia = here::here("data/climatologia.gz"),
+  campos_sam = here::here("data/campos.csv"),
+  varianza_relativa = here::here("data/sam_var_eof.csv"),
+  ajuste = here::here("data/sam_norm_adjust.csv")
+)
 
 
-gl$sam_file <- here::here("../data/campos.csv")
-gl$climatologia_file <- here::here("../data/climatologia.gz")
-gl$sam_norm_file <- here::here("../data/sam_norm.csv")
-gl$sam_norm_adjust <- here::here("../data/sam_norm_adjust.csv")
-gl$sam_sd_file <- here::here("../data/sam_sd.csv")
 
 gl$plots <- list(
   sam_campos  = here::here("../web/images/plots/fields.png"),

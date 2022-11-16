@@ -1,17 +1,26 @@
-library(magrittr)
 
-source(here::here("helpers/globals.R"))
 
-clim <- data.table::fread(gl$climatologia_file)
-norm <- data.table::fread(gl$sam_norm_file)
-campos <- data.table::fread(gl$sam_file) %>%
-  data.table::melt(id.vars = c("lon", "lat", "lev"))
+get_dates <- function(today = Sys.Date()) {
+  last_month <- lubridate::floor_date(today - lubridate::dmonths(1), "month")
+  dates <- seq(as.Date("1959-01-01"), as.Date(last_month), "1 month")
+  rev(dates)[1:3]
+}
+
 
 
 make_sam_file <- function(date) {
-  file.path(here::here("../data/sam"),
+  file.path(gl$dirs$indices,
             paste0(format(date, "%Y-%m-%d"), "_sam.csv"))
 }
+
+
+
+decode_sam_file <- function(file) {
+  as.POSIXct(basename(file), tz = "UTC",
+             format = paste0("%Y-%m-%d_sam.csv"))
+}
+
+
 
 normalise_coords <- function(data,
                              rules =  list(lev = c("level"),
@@ -41,26 +50,27 @@ strip_year <- function(time) {
 }
 
 
-computar_sam <- function(file, normalizar = TRUE) {
-  hgt <- metR::ReadNetCDF(file, vars = c(hgt = "z")) %>%
+computar_sam <- function(file, fields, climatology, normalisation) {
+  hgt <- metR::ReadNetCDF(file, vars = c(hgt = "z"),
+                          subset = list(latitude = c(-90, -20))) %>%
     normalise_coords() %>%
-    .[, time2 := strip_year(time[1]), by = time]
+    .[, time2 := data.table::as.IDate(strip_year(time[1])), by = time]
 
 
-  sam <- clim[hgt, on = c("lon", "lat", "lev", "time2")] %>%
+  sam <- climatology[hgt, on = c("lon", "lat", "lev", "time2")] %>%
     .[, anom := hgt - mean] %>%
-    campos[., on = c("lon", "lat", "lev"), allow.cartesian = TRUE] %>%
-    .[, metR::FitLm(anom, value, weights = cos(lat*pi/180), r2 = TRUE), by = .(variable, lev, time)] %>%
+    fields[., on = c("lon", "lat", "lev"), allow.cartesian = TRUE] %>%
+    .[, metR::FitLm(anom, field, r2 = TRUE),
+      by = .(index, lev, time)] %>%
     .[term != "(Intercept)"] %>%
-    .[, term := NULL] %>%
-    data.table::setnames("variable", "term")
+    .[, term := NULL]
 
-  if (isTRUE(normalizar)) {
-    sam <- sam %>%
-      norm[., on = c("lev", "term")] %>%
-      .[, estimate := estimate/norm] %>%
-      .[, norm := NULL]
-  }
+
+  sam <- sam %>%
+    normalisation[., on = c("lev", "index")] %>%
+    .[, estimate := estimate*norm] %>%
+    .[, norm := NULL]
+
 
   sam[]
 }

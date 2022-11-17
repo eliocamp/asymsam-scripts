@@ -1,6 +1,6 @@
 
 factor_sam <- function(x) {
-  factor(x, levels = c("full", "sym", "asym"), labels = c("SAM", "S-SAM", "A-SAM"))
+  factor(x, levels = c("sam", "ssam", "asam"), labels = c("SAM", "S-SAM", "A-SAM"))
 }
 
 theme_asymsam <- function(base_size = 12) {

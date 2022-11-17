@@ -2,7 +2,7 @@ compute_climatology_sd <- function(files, fields, date_range = gl$climatology) {
   levels <- as.integer(names(files))
   max_k <- 4
   # Computa la climatología.
-  res <- purrr::map2(files, levels, function(file, level) {
+  res <- furrr::future_map2(files, levels, function(file, level) {
     message("   nivel ", level, " hPa... ")
 
     # Calcular climatologia diaria --------------------------------------------
@@ -58,7 +58,7 @@ write_climatology <- function(climatology) {
 compute_normalisation <- function(sd, relvariance) {
   # Normalizar usando la climatología
   relvariance[sd, on = "lev"] %>%
-    .[, norm := sd/rel_variance] %>%
+    .[, norm := rel_variance/sd] %>%
     .[, sd := NULL] %>%
     .[, rel_variance := NULL] %>%
     .[]

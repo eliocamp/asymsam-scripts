@@ -18,7 +18,7 @@ tar_option_set(
 options(clustermq.scheduler = "multicore")
 
 # tar_make_future() configuration (okay to leave alone):
-future::plan(future.callr::callr)
+future::plan("multicore", workers = 5)
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
@@ -38,6 +38,13 @@ list(
     name = fields,
     command = compute_fields(monthly_files)
   ),
+
+  tar_target(
+    name = plot_fields,
+    command = plot_sam_fields(fields),
+    format = "file"
+  ),
+
   tar_target(
     name = fields_file,
     command = write_fields(fields),
@@ -88,5 +95,28 @@ list(
                           normalisation),
     pattern = map(dates),
     format = "file"
+  ),
+
+  tar_target(
+    name = meses,
+    command = c(3, 6, 12)
+  ),
+
+  tar_target(
+    name = plot_lines_file,
+    command = plot_lines(sam, meses),
+    pattern = map(meses)
+  ),
+
+  tar_target(
+    name = plot_vertical_file,
+    command = plot_vertical(sam, meses),
+    pattern = map(meses)
+  ),
+
+  tar_target(
+    name = move_plots,
+    command = move_plots(c(plot_fields, plot_lines_file, plot_vertical_file))
   )
+
 )

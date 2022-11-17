@@ -89,10 +89,10 @@ write_fields <- function(eof) {
 
 compute_relvariance <- function(eof) {
   eof %>%
-    .[, .(variance = wvar(field, cos(lat*pi/180))), by = .(index, lev)] %>%
+    .[, .(variance = var(field)), by = .(index, lev)] %>%
     data.table::dcast(lev ~ index, value.var = "variance") %>%
-    .[, .(asam = sam/asam,
-          ssam = sam/ssam,
+    .[, .(asam = asam/sam,
+          ssam = ssam/sam,
           sam = 1), by = lev] %>%
     data.table::melt(id.vars = c("lev"), variable.name = "index", value.name = "rel_variance")
 }

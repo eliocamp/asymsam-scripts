@@ -1,7 +1,4 @@
-
-compute_sam <- function(date, fields, climatology, normalisation) {
-  write(date, "date.txt")
-  stopifnot(length(date) == 1)
+compute_sam <- function(date, fields, climatology, normalisation = NULL) {
   file <- make_sam_file(date)
 
   message("Computando SAM para ", format(date, "%Y-%m"))
@@ -18,6 +15,7 @@ compute_sam <- function(date, fields, climatology, normalisation) {
   message("Computando SAMs...")
   sam <- computar_sam(data_file, fields, climatology, normalisation)
 
+  diagnostics(sam)
   message("Guardando...")
   data.table::fwrite(sam, file)
 
@@ -26,3 +24,23 @@ compute_sam <- function(date, fields, climatology, normalisation) {
 
 
 
+diagnostics <- function(sam) {
+  # Verificar que el rango de valores sea razonable
+  range <- sam[, .(max = max(abs(estimate))), by = .(index, lev)] %>%
+    .[, any(max > 100)]
+
+  # Verificar que sam = asam +  ssam
+  sum <- sam %>%
+    data.table::dcast(lev + time ~ index, value.var = "estimate") %>%
+    .[, any(abs(sam - asam - ssam) > 1e-10)]
+
+  failed <- c("Se fue de rango" = range,
+             "SAM != ASAM + SSAM" = sum)
+
+  if (any(failed)) {
+    text <- paste(names(failed)[failed], collapse = "\n")
+    stop(text)
+  }
+
+  invisible(TRUE)
+}

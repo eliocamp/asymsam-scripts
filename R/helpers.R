@@ -3,7 +3,7 @@
 get_dates <- function(today = Sys.Date()) {
   last_month <- lubridate::floor_date(today - lubridate::dmonths(1), "month")
   dates <- seq(as.Date("1959-01-01"), as.Date(last_month), "1 month")
-  rev(dates)[1:3]
+  rev(dates)[1:12]
 }
 
 
@@ -65,11 +65,12 @@ computar_sam <- function(file, fields, climatology, normalisation) {
     .[term != "(Intercept)"] %>%
     .[, term := NULL]
 
-
-  sam <- sam %>%
-    normalisation[., on = c("lev", "index")] %>%
-    .[, estimate := estimate*norm] %>%
-    .[, norm := NULL]
+  if (!is.null(normalisation)) {
+    sam <- sam %>%
+      normalisation[., on = c("lev", "index")] %>%
+      .[, estimate := estimate*norm] %>%
+      .[, norm := NULL]
+  }
 
 
   sam[]

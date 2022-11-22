@@ -69,7 +69,8 @@ plot_lines <- function(files, meses = 12) {
     ggbraid::geom_braid(aes(ymin = estimate, ymax = 0, fill = estimate > 0)) +
     geom_line(size = 0.2) +
     scale_y_continuous(NULL,breaks = scales::breaks_extended(10)) +
-    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks)  +
+    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks,
+                 expand = c(0, 0))  +
     escala_signo +
     facet_grid(lev ~ index, labeller = labeller(lev = lev.lab),
                scales = "free_y")
@@ -85,7 +86,7 @@ plot_vertical <- function(files, meses = 12) {
 
   sam <- data.table::rbindlist(lapply(files, data.table::fread))[, index := factor_sam(index)]
 
-  breaks <- seq(0.5, 1, length.out = 8) %>%
+  breaks <- seq(0.5, 1, length.out = 10) %>%
     qnorm() %>%
     round(digits = 2)
 
@@ -108,7 +109,8 @@ plot_vertical <- function(files, meses = 12) {
     metR::scale_fill_divergent_discretised(NULL, guide = guide_fill,
                                      labels = scales::number_format()) +
     metR::scale_y_level(trans = metR::reverselog_trans()) +
-    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks) +
+    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks,
+                 expand = c(0, 0)) +
     facet_grid(index ~ .)
 
   file <- gl$plots[[paste0("sam_latest", meses, "_vertical")]]
@@ -117,11 +119,11 @@ plot_vertical <- function(files, meses = 12) {
 
 }
 
-
-move_plots <- function(files) {
+move_to_web <- function(files, to_folder) {
 
   files <- paste0(normalizePath(files), collapse = " ")
-  command <- paste0("rsync -avz ", files, " elio.campitelli@portal.cima.fcen.uba.ar:~/wwwuser/asymsam/images/plots")
+  destination <- paste0("elio.campitelli@portal.cima.fcen.uba.ar:~/wwwuser/asymsam/", to_folder, "/")
+  command <- paste("rsync -avz", files, destination)
 
   system(command)
 }

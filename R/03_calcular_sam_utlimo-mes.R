@@ -6,8 +6,14 @@ compute_sam <- function(date, fields, climatology, normalisation = NULL) {
 
   request$year <- lubridate::year(date)
   request$month <- lubridate::month(date)
-  request$day <- seq_len(lubridate::days_in_month(date))
 
+  if (lubridate::month(Sys.Date()) == lubridate::month(date)) {
+    last_day <- lubridate::mday(Sys.Date() - lubridate::ddays(10))
+  } else {
+    last_day <- lubridate::days_in_month(date)
+  }
+
+  request$day <- seq_len(last_day)
 
   message("Descargando datos...")
   data_file <- ecmwfr::wf_request(request, user = Sys.getenv("CDSUSER"))
@@ -35,7 +41,7 @@ diagnostics <- function(sam) {
     .[, any(abs(sam - asam - ssam) > 1e-10)]
 
   failed <- c("Se fue de rango" = range,
-             "SAM != ASAM + SSAM" = sum)
+              "SAM != ASAM + SSAM" = sum)
 
   if (any(failed)) {
     text <- paste(names(failed)[failed], collapse = "\n")
@@ -44,3 +50,35 @@ diagnostics <- function(sam) {
 
   invisible(TRUE)
 }
+
+
+
+write_monthly <- function(sam) {
+  sam %>%
+    lapply(data.table::fread) %>%
+    data.table::rbindlist() %>%
+    .[, .(mean_estimate = mean(estimate),
+          mean_r.squared = mean(r.squared)),
+      by = .(lev, index, time = lubridate::floor_date(time, "1 month"))] %>%
+    data.table::fwrite(gl$archivos$sam_monthly)
+  gl$archivos$sam_monthly
+}
+
+
+
+write_level <- function(sam) {
+  save <- function(data, lev) {
+    file <-  file.path(gl$dirs$daily_lev, paste0("sam_", lev, "hPa.csv"))
+    data.table::fwrite(data, file)
+    file
+  }
+
+  files <- sam %>%
+    lapply(data.table::fread) %>%
+    data.table::rbindlist() %>%
+    split(by = "lev") %>%
+    purrr::imap_chr(save)
+
+  files
+}
+

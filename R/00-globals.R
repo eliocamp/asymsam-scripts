@@ -28,7 +28,8 @@ gl$base_request <- list(
 gl$dirs <- list(
   era_mensual = here::here("data/era-monthly"),
   era_historical = here::here("data/era5"),
-  indices = here::here("data/sam")
+  indices = here::here("data/sam"),
+  daily_lev = here::here("data/sam_level")
 )
 
 vapply(gl$dir, dir.create, logical(1), showWarnings = FALSE, recursive = FALSE,)
@@ -37,7 +38,8 @@ gl$archivos <- list(
   climatologia = here::here("data/climatologia.gz"),
   campos_sam = here::here("data/campos.csv"),
   varianza_relativa = here::here("data/sam_var_eof.csv"),
-  ajuste = here::here("data/sam_norm_adjust.csv")
+  ajuste = here::here("data/sam_norm_adjust.csv"),
+  sam_monthly = here::here("data/sam_monthly.csv")
 )
 
 

@@ -98,6 +98,30 @@ list(
   ),
 
   tar_target(
+    name = sam_monthly,
+    command = write_monthly(sam),
+    format = "file"
+  ),
+
+  tar_target(
+    name = move_monthly_command,
+    command = move_to_web(sam_monthly,
+                          "data")
+  ),
+
+  tar_target(
+    name = sam_level,
+    command = write_level(sam),
+    format = "file"
+  ),
+
+  tar_target(
+    name = move_level_command,
+    command = move_to_web(sam_level,
+                          "data/sam_level")
+  ),
+
+  tar_target(
     name = meses,
     command = c(3, 6, 12)
   ),
@@ -115,8 +139,9 @@ list(
   ),
 
   tar_target(
-    name = move_plots,
-    command = move_plots(c(plot_fields, plot_lines_file, plot_vertical_file))
+    name = move_plots_command,
+    command = move_to_web(c(plot_fields, plot_lines_file, plot_vertical_file),
+                          "images/plots")
   )
 
 )

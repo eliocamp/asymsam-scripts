@@ -3,17 +3,19 @@ compute_sam <- function(date, fields, climatology, normalisation = NULL) {
 
   message("Computando SAM para ", format(date, "%Y-%m"))
   request <- gl$base_request
+  today <- as.Date(lubridate::now(tzone = "UTC"))
 
-  request$year <- lubridate::year(date)
-  request$month <- lubridate::month(date)
-  today <- lubridate::now(tzone = "UTC")
-  if (lubridate::month(today) == lubridate::month(date)) {
-    last_day <- lubridate::mday(today - lubridate::ddays(6))
-  } else {
-    last_day <- lubridate::days_in_month(date)
-  }
+  last_day <- lubridate::floor_date(today - lubridate::ddays(6), "1 day")
 
-  request$day <- seq_len(last_day)
+  request$year <- NULL
+  request$month <- NULL
+  request$day <- NULL
+
+  request_format <- "%Y-%m-%d"
+
+  request$date <- paste0(c(format(date, format = request_format),
+                           format(last_day, format = request_format)),
+                         collapse = "/")
 
   message("Descargando datos...")
   data_file <- ecmwfr::wf_request(request, user = Sys.getenv("CDSUSER"))

@@ -85,7 +85,7 @@ list(
 
   tar_target(
     name = dates,
-    command = get_dates(today = Sys.Date())
+    command = get_dates(today = lubridate::now(tzone = "UTC"))
   ),
 
   tar_target(

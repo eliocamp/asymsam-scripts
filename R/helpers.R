@@ -1,6 +1,6 @@
 
 
-get_dates <- function(today = Sys.Date()) {
+get_dates <- function(today = lubridate::now(tzone = "UTC")) {
   last_month <- lubridate::floor_date(today - lubridate::ddays(10), "month")
   dates <- seq(as.Date("1959-01-01"), as.Date(last_month), "1 month")
   rev(dates)

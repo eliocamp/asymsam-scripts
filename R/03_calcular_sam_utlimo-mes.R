@@ -6,9 +6,9 @@ compute_sam <- function(date, fields, climatology, normalisation = NULL) {
 
   request$year <- lubridate::year(date)
   request$month <- lubridate::month(date)
-
-  if (lubridate::month(Sys.Date()) == lubridate::month(date)) {
-    last_day <- lubridate::mday(Sys.Date() - lubridate::ddays(10))
+  today <- lubridate::now(tzone = "UTC")
+  if (lubridate::month(today) == lubridate::month(date)) {
+    last_day <- lubridate::mday(today - lubridate::ddays(6))
   } else {
     last_day <- lubridate::days_in_month(date)
   }

@@ -49,10 +49,12 @@ escala_signo <- scale_fill_manual(NULL,
 guide_fill <- guide_colorsteps(barwidth =30, barheight = 0.5, frame.colour = "black",
                                even.steps = FALSE, show.limits = FALSE)
 
+last_updated <- function(now = lubridate::now(tzone = "UTC")) {
+  paste0("Last update: ", as.character(now, format = "%F %R UTC"))
+}
 
 plot_lines <- function(files, meses = 12) {
   files <- files[seq_len(meses)]
-
   sam <- data.table::rbindlist(lapply(files, data.table::fread))[, index := factor_sam(index)]
 
   if (meses == 12) {
@@ -73,7 +75,8 @@ plot_lines <- function(files, meses = 12) {
                  expand = c(0, 0))  +
     escala_signo +
     facet_grid(lev ~ index, labeller = labeller(lev = lev.lab),
-               scales = "free_y")
+               scales = "free_y") +
+    labs(caption = last_updated())
 
   file <- gl$plots[[paste0("sam_latest", meses)]]
   ggsave(file, g, units = "px", height = 400*3, width = 700*3,
@@ -105,13 +108,14 @@ plot_vertical <- function(files, meses = 12) {
   g <- sam %>%
     ggplot(aes(as.Date(time), lev)) +
     metR::geom_contour_fill(aes(z = estimate, fill = stat(level)), breaks = breaks) +
-    geom_contour_tanaka2(aes(z = estimate), breaks = breaks) +
+    geom_contour_tanaka2(aes(z = estimate), breaks = breaks, smooth = 1) +
     metR::scale_fill_divergent_discretised(NULL, guide = guide_fill,
                                      labels = scales::number_format()) +
     metR::scale_y_level(trans = metR::reverselog_trans()) +
     scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks,
                  expand = c(0, 0)) +
-    facet_grid(index ~ .)
+    facet_grid(index ~ .) +
+    labs(caption = last_updated())
 
   file <- gl$plots[[paste0("sam_latest", meses, "_vertical")]]
   ggsave(file, g, units = "px", height = 400*3, width = 700*3,

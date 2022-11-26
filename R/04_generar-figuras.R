@@ -53,17 +53,51 @@ last_updated <- function(now = lubridate::now(tzone = "UTC")) {
   paste0("Last update: ", as.character(now, format = "%F %R UTC"))
 }
 
-plot_lines <- function(files, meses = 12) {
-  files <- files[seq_len(meses)]
-  sam <- data.table::rbindlist(lapply(files, data.table::fread))[, index := factor_sam(index)]
+date_breaks <- function(meses) {
+  function(limit) {
+    start <- seq(
+      lubridate::floor_date(min(limit), "1 month"),
+      lubridate::ceiling_date(max(limit), "1 month"),
+      "1 month")
 
-  if (meses == 12) {
-    date_breaks <- waiver()
-  } else if (meses == 6) {
-    date_breaks <- "1 month"
-  } else if (meses == 3) {
-    date_breaks <- "15 days"
+    middle <-  start + lubridate::ddays(14)
+    if (meses == 12) {
+      middle <- NULL
+    }
+
+    end <- max(limit)
+    min <- min(limit)
+
+    unique(sort(c(min, start, middle, end)))
   }
+}
+
+scale_x_date_sam <- function(meses) {
+  scale_x_date(NULL, date_labels = "%b\n%d", breaks = date_breaks(meses),
+               expand = c(0, 0), guide = guide_axis(check.overlap = TRUE))
+}
+
+read_sam_months <- function(files, meses) {
+  files <- files[seq_len(meses+1)]
+
+  sam <- data.table::rbindlist(lapply(files, data.table::fread)) %>%
+    .[, index := factor_sam(index)] %>%
+    .[order(lev, time)]
+
+
+  dias <- switch(as.character(meses),
+                 "12" = 365,
+                 "6" = 180,
+                 "3" =  90
+  )
+
+  sam <- sam[time > (max(time) - lubridate::ddays(dias))]
+  sam
+}
+
+
+plot_lines <- function(files, meses = 12) {
+  sam <- read_sam_months(files, meses)
 
   g <- sam %>%
     .[lev %in% levs] %>%
@@ -71,8 +105,7 @@ plot_lines <- function(files, meses = 12) {
     ggbraid::geom_braid(aes(ymin = estimate, ymax = 0, fill = estimate > 0)) +
     geom_line(size = 0.2) +
     scale_y_continuous(NULL,breaks = scales::breaks_extended(10)) +
-    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks,
-                 expand = c(0, 0))  +
+    scale_x_date_sam(meses) +
     escala_signo +
     facet_grid(lev ~ index, labeller = labeller(lev = lev.lab),
                scales = "free_y") +
@@ -84,36 +117,20 @@ plot_lines <- function(files, meses = 12) {
 
 }
 
+
 plot_vertical <- function(files, meses = 12) {
-  files <- files[seq_len(meses)]
+  sam <- read_sam_months(files, meses)
 
-  sam <- data.table::rbindlist(lapply(files, data.table::fread))[, index := factor_sam(index)]
-
-  breaks <- seq(0.5, 1, length.out = 10) %>%
-    qnorm() %>%
-    round(digits = 2)
-
-  breaks <- sort(unique(c(-breaks, breaks)))
-  breaks <- breaks[breaks != 0]
-
-
-  if (meses == 12) {
-    date_breaks <- waiver()
-  } else if (meses == 6) {
-    date_breaks <- "1 month"
-  } else if (meses == 3) {
-    date_breaks <- "15 days"
-  }
+  breaks <- metR::AnchorBreaks(0, 0.5, exclude = 0)(c(-5, 5))
 
   g <- sam %>%
     ggplot(aes(as.Date(time), lev)) +
     metR::geom_contour_fill(aes(z = estimate, fill = stat(level)), breaks = breaks) +
     geom_contour_tanaka2(aes(z = estimate), breaks = breaks, smooth = 1) +
     metR::scale_fill_divergent_discretised(NULL, guide = guide_fill,
-                                     labels = scales::number_format()) +
+                                           labels = scales::number_format()) +
     metR::scale_y_level(trans = metR::reverselog_trans()) +
-    scale_x_date(NULL, date_labels = "%b\n%d", date_breaks = date_breaks,
-                 expand = c(0, 0)) +
+    scale_x_date_sam(meses) +
     facet_grid(index ~ .) +
     labs(caption = last_updated())
 

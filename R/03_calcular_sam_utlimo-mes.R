@@ -1,11 +1,21 @@
 compute_sam <- function(date, fields, climatology, normalisation = NULL) {
+  date <- lubridate::floor_date(date, "1 month")
   file <- make_sam_file(date)
 
+  if (date < as.Date("2022-09-01")) {
+    # Hardcode early returns not to get all the historical data everty time
+    # something trivial changes
+    return(file)
+  }
   message("Computando SAM para ", format(date, "%Y-%m"))
   request <- gl$base_request
   today <- as.Date(lubridate::now(tzone = "UTC"))
 
-  last_day <- lubridate::floor_date(today - lubridate::ddays(6), "1 day")
+  last_available <- lubridate::floor_date(today - lubridate::ddays(6), "1 day")
+  last_day_in_month <- date + lubridate::ddays(lubridate::days_in_month(lubridate::month(date))-1)
+
+  last_day <- min(last_available, last_day_in_month)
+
 
   request$year <- NULL
   request$month <- NULL
@@ -57,6 +67,7 @@ diagnostics <- function(sam) {
 
 write_monthly <- function(sam) {
   sam %>%
+    .[-1] %>%   # Last month is never complete.
     lapply(data.table::fread) %>%
     data.table::rbindlist() %>%
     .[, .(mean_estimate = mean(estimate),
@@ -78,6 +89,7 @@ write_level <- function(sam) {
   files <- sam %>%
     lapply(data.table::fread) %>%
     data.table::rbindlist() %>%
+    .[order(lev, time, index)] %>%
     split(by = "lev") %>%
     purrr::imap_chr(save)
 

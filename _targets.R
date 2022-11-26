@@ -100,7 +100,8 @@ list(
   tar_target(
     name = sam_monthly,
     command = write_monthly(sam),
-    format = "file"
+    format = "file",
+    cue = tar_cue("always")
   ),
 
   tar_target(
@@ -112,7 +113,8 @@ list(
   tar_target(
     name = sam_level,
     command = write_level(sam),
-    format = "file"
+    format = "file",
+    cue = tar_cue("always")
   ),
 
   tar_target(
@@ -129,13 +131,17 @@ list(
   tar_target(
     name = plot_lines_file,
     command = plot_lines(sam, meses),
-    pattern = map(meses)
+    pattern = map(meses),
+    format = "file",
+    cue = tar_cue("always")
   ),
 
   tar_target(
     name = plot_vertical_file,
     command = plot_vertical(sam, meses),
-    pattern = map(meses)
+    pattern = map(meses),
+    format = "file",
+    cue = tar_cue("always")
   ),
 
   tar_target(

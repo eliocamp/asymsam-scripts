@@ -26,8 +26,7 @@ tar_source()
 
 dates_historical <- seq(gl$climatology[1], gl$climatology[2], "1 month")
 
-
-
+today <- lubridate::now(tzone = "UTC")
 # Replace the target list below with your own:
 list(
   tar_target(
@@ -85,7 +84,7 @@ list(
 
   tar_target(
     name = dates,
-    command = get_dates(today = lubridate::now(tzone = "UTC"))
+    command = get_dates(today = today)
   ),
 
   tar_target(

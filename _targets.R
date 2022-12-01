@@ -141,12 +141,6 @@ list(
     pattern = map(meses),
     format = "file",
     cue = tar_cue("always")
-  ),
-
-  tar_target(
-    name = move_plots_command,
-    command = move_to_web(c(plot_fields, plot_lines_file, plot_vertical_file),
-                          "images/plots")
   )
 
 )

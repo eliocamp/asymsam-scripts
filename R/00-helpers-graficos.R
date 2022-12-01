@@ -8,6 +8,7 @@ theme_asymsam <- function(base_size = 12) {
     ggplot2::theme(
       legend.position = "bottom",
       legend.box = "vertical",
+
       strip.text = ggplot2::element_text(size = 12),
       panel.grid = ggplot2::element_line(color = scales::alpha("gray60", 0.5),
                                          size = 0.1),

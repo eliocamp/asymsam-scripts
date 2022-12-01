@@ -8,6 +8,10 @@ ZeroBreaks <- metR::AnchorBreaks(0, NULL, 0)
 lev.lab <- function(x) paste0(x, " hPa")
 levs <- c(50, 700)
 
+title <- "Southern Annular Mode indices"
+subtitle <- "complete, symmetric and asymmetric components"
+caption <- "Created by Elio Campitelli @ CIMA\neliocamp.github.io - cima.fcen.uba.ar"
+
 # Campos medios -----------------------------------------------------------
 # Esta es estática. Sólo se corre una vez.
 
@@ -32,6 +36,7 @@ plot_sam_fields <- function(fields, levels = c(50, 700)) {
     no_grid +
     theme(panel.spacing = grid::unit(-1, "lines"))
 
+
   ggsave(gl$plots$sam_campos, sam_campos, units = "px", height = 500*3, width = 700*3,
          bg = "white")
 }
@@ -50,7 +55,7 @@ guide_fill <- guide_colorsteps(barwidth =30, barheight = 0.5, frame.colour = "bl
                                even.steps = FALSE, show.limits = FALSE)
 
 last_updated <- function(now = lubridate::now(tzone = "UTC")) {
-  paste0("Last update: ", as.character(now, format = "%F %R UTC"))
+  paste0("Last update: ", as.character(now, format = "%F"))
 }
 
 date_breaks <- function(meses) {
@@ -104,15 +109,19 @@ plot_lines <- function(files, meses = 12) {
     ggplot(aes(as.Date(time), estimate)) +
     ggbraid::geom_braid(aes(ymin = estimate, ymax = 0, fill = estimate > 0)) +
     geom_line(size = 0.2) +
-    scale_y_continuous(NULL,breaks = scales::breaks_extended(10)) +
+    scale_y_continuous(NULL, breaks = scales::breaks_extended(10)) +
     scale_x_date_sam(meses) +
     escala_signo +
     facet_grid(lev ~ index, labeller = labeller(lev = lev.lab),
                scales = "free_y") +
-    labs(caption = last_updated())
+    labs(title = title,
+         subtitle = subtitle,
+         caption = c(caption, last_updated())) +
+    theme(panel.spacing.x = grid::unit(1.5, "lines")) +
+    theme(plot.caption = element_text(hjust = c(0, 1)))
 
   file <- gl$plots[[paste0("sam_latest", meses)]]
-  ggsave(file, g, units = "px", height = 400*3, width = 700*3,
+  ggsave(file, g, units = "px", height = 420*3, width = 700*3,
          bg = "white")
 
 }
@@ -132,10 +141,14 @@ plot_vertical <- function(files, meses = 12) {
     metR::scale_y_level(trans = metR::reverselog_trans()) +
     scale_x_date_sam(meses) +
     facet_grid(index ~ .) +
-    labs(caption = last_updated())
+    labs(title = title,
+         subtitle = subtitle,
+         caption = c(caption, last_updated())) +
+    theme(panel.spacing.y = grid::unit(1, "lines")) +
+    theme(plot.caption = element_text(hjust = c(0, 1)))
 
   file <- gl$plots[[paste0("sam_latest", meses, "_vertical")]]
-  ggsave(file, g, units = "px", height = 400*3, width = 700*3,
+  ggsave(file, g, units = "px", height = 420*3, width = 700*3,
          bg = "white")
 
 }

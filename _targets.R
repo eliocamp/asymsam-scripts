@@ -27,6 +27,7 @@ tar_source()
 dates_historical <- seq(gl$climatology[1], gl$climatology[2], "1 month")
 
 today <- lubridate::now(tzone = "UTC")
+message("Actualizando SAM al ", today)
 # Replace the target list below with your own:
 list(
   tar_target(

@@ -55,7 +55,7 @@ guide_fill <- guide_colorsteps(barwidth =30, barheight = 0.5, frame.colour = "bl
                                even.steps = FALSE, show.limits = FALSE)
 
 last_updated <- function(now = lubridate::now(tzone = "UTC")) {
-  paste0("Last update: ", as.character(now, format = "%F"))
+  paste0("Latest update: ", format(now, format = "%F"))
 }
 
 date_breaks <- function(meses) {
@@ -82,21 +82,25 @@ scale_x_date_sam <- function(meses) {
                expand = c(0, 0), guide = guide_axis(check.overlap = TRUE))
 }
 
-read_sam_months <- function(files, meses) {
-  files <- files[seq_len(meses+1)]
+read_sam_months <- function(files, meses = NULL) {
+  if (!is.null(meses)) {
+    files <- files[seq_len(meses+1)]
+  }
 
   sam <- data.table::rbindlist(lapply(files, data.table::fread)) %>%
     .[, index := factor_sam(index)] %>%
     .[order(lev, time)]
 
+  if (!is.null(meses)) {
+    dias <- switch(as.character(meses),
+                   "12" = 365,
+                   "6" = 180,
+                   "3" =  90
+    )
+    sam <- sam[time > (max(time) - lubridate::ddays(dias))]
+  }
 
-  dias <- switch(as.character(meses),
-                 "12" = 365,
-                 "6" = 180,
-                 "3" =  90
-  )
 
-  sam <- sam[time > (max(time) - lubridate::ddays(dias))]
   sam
 }
 

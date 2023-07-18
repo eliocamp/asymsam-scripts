@@ -49,10 +49,13 @@ gl$plots <- list(
 
   sam_latest12 = here::here("../web/images/plots/latest12.png"),
   sam_latest12_vertical = here::here("../web/images/plots/latest12-vertical.png"),
+  sam_latest12_arrows = here::here("../web/images/plots/latest12-arrows.png"),
 
   sam_latest6 = here::here("../web/images/plots/latest6.png"),
   sam_latest6_vertical = here::here("../web/images/plots/latest6-vertical.png"),
+  sam_latest6_arrows = here::here("../web/images/plots/latest6-arrows.png"),
 
   sam_latest3 = here::here("../web/images/plots/latest3.png"),
-  sam_latest3_vertical = here::here("../web/images/plots/latest3-vertical.png")
+  sam_latest3_vertical = here::here("../web/images/plots/latest3-vertical.png"),
+  sam_latest3_arrows = here::here("../web/images/plots/latest3-arrows.png")
 )

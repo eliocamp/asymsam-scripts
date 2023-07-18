@@ -51,9 +51,14 @@ escala_signo <- scale_fill_manual(NULL,
                                              "FALSE" = azul),
                                   guide = "none")
 
-guide_fill <- guide_colorsteps(barwidth =30, barheight = 0.5, frame.colour = "black",
-                               even.steps = FALSE, show.limits = FALSE)
+guide_fill <- function(barwidth = 30, barheight = 0.5, frame.colour = "black",
+                       even.steps = FALSE, show.limits = FALSE, title.position = "top", ...) {
+  guide_colorsteps(barwidth = barwidth, barheight = barheight, frame.colour = frame.colour,
+                   even.steps =  even.steps, show.limits = show.limits,
+                   title.position = title.position,
+                   ...)
 
+}
 last_updated <- function(now = lubridate::now(tzone = "UTC")) {
   paste0("Latest update: ", format(now, format = "%F"))
 }
@@ -140,7 +145,7 @@ plot_vertical <- function(files, meses = 12) {
     ggplot(aes(as.Date(time), lev)) +
     metR::geom_contour_fill(aes(z = estimate, fill = stat(level)), breaks = breaks) +
     geom_contour_tanaka2(aes(z = estimate), breaks = breaks, smooth = 1) +
-    metR::scale_fill_divergent_discretised(NULL, guide = guide_fill,
+    metR::scale_fill_divergent_discretised(NULL, guide = guide_fill(),
                                            labels = scales::number_format()) +
     metR::scale_y_level(trans = metR::reverselog_trans()) +
     scale_x_date_sam(meses) +
@@ -151,11 +156,46 @@ plot_vertical <- function(files, meses = 12) {
     theme(panel.spacing.y = grid::unit(1, "lines")) +
     theme(plot.caption = element_text(hjust = c(0, 1)))
 
-  file <- gl$plots[[paste0("sam_latest", meses, "_vertical")]]
+  file <- gl$plots[[paste0("sam_latest", meses, "_arrows")]]
   ggsave(file, g, units = "px", height = 420*3, width = 700*3,
          bg = "white")
 
 }
+
+
+
+plot_arrows <- function(files, meses = 12) {
+  sam <- read_sam_months(files, meses)
+
+  breaks <- metR::AnchorBreaks(0, 0.5, exclude = 0)(c(-5, 5))
+  arrow_levels <- c(2, 3, 5, 10, 20, 30, 50, 70, 100, 150, 200, 300, 450, 750)
+
+  g <- sam %>%
+    data.table::dcast(lev + time ~ index, value.var = "estimate") %>%
+    ggplot(aes(as.Date(time), lev)) +
+    metR::geom_contour_fill(aes(z = SAM, fill = stat(level)), breaks = breaks) +
+    metR::geom_arrow(aes(dx = `S-SAM`, dy = `A-SAM`),
+                     data = ~.x[lev %in% arrow_levels],
+                     skip.x = 2,
+                     preserve.dir = TRUE) +
+    metR::scale_y_level(trans = metR::reverselog_trans()) +
+    metR::scale_mag(guide = "none") +
+    metR::scale_fill_divergent_discretised("SAM", guide = guide_fill(),
+                                           labels = scales::number_format()) +
+    scale_x_date_sam(6) +
+    coord_cartesian(clip = "off") +
+    labs(title = title,
+         subtitle = "S-SAM in the horizontal component and A-SAM in the vertical component.",
+         caption = c(caption, last_updated())) +
+    theme(panel.spacing.y = grid::unit(1, "lines")) +
+    theme(plot.caption = element_text(hjust = c(0, 1)))
+
+  file <- gl$plots[[paste0("sam_latest", meses, "_arrows")]]
+  ggsave(file, g, units = "px", height = 420*3, width = 700*3,
+         bg = "white")
+
+}
+
 
 move_to_web <- function(files, to_folder) {
 

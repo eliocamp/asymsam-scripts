@@ -25,6 +25,8 @@ tar_source()
 # source("other_functions.R") # Source other scripts as needed. # nolint
 
 dates_historical <- seq(gl$climatology[1], gl$climatology[2], "1 month")
+levels <- gl$levels
+climatology <- gl$climatology
 
 today <- lubridate::now(tzone = "UTC")
 message("Actualizando SAM al ", today)
@@ -32,7 +34,7 @@ message("Actualizando SAM al ", today)
 list(
   tar_target(
     name = monthly_files,
-    command = download_hgt_monthly(levels = gl$levels, date_range = gl$climatology)
+    command = download_hgt_monthly(levels = levels, date_range = climatology)
   ),
   tar_target(
     name = fields,
@@ -57,13 +59,13 @@ list(
 
   tar_target(
     name = historical_files,
-    command = download_historical(levels = gl$levels, dates = dates_historical)
+    command = download_historical(levels = levels, dates = dates_historical)
   ),
 
   tar_target(
     name = climatology_sd,
     command = compute_climatology_sd(files = historical_files, fields = fields,
-                                     date_range = gl$climatology)
+                                     date_range = climatology)
   ),
 
   tar_target(
@@ -139,6 +141,14 @@ list(
   tar_target(
     name = plot_vertical_file,
     command = plot_vertical(sam, meses),
+    pattern = map(meses),
+    format = "file",
+    cue = tar_cue("always")
+  ),
+
+  tar_target(
+    name = plot_arrows_file,
+    command = plot_arrows(sam, meses),
     pattern = map(meses),
     format = "file",
     cue = tar_cue("always")
